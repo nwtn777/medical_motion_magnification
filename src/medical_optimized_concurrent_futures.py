@@ -124,7 +124,7 @@ def process_frame(final_img, prev_gray, mask, s):
 if __name__ == "__main__":
     fps = 20
     alpha = 100
-    lambda_c = 80
+    lambda_c = 20
     fl = 0.8
     fh = 2.0
 
