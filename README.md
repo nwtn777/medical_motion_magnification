@@ -39,6 +39,7 @@ The project requires the following Python packages:
 - numpy
 - matplotlib
 - pyrtools
+- PyQt5
 
 ## Contributing
 Contributions are welcome! Please feel free to submit a pull request or open an issue for any enhancements or bug fixes.

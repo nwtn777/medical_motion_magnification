@@ -4,3 +4,4 @@ scikit-image
 numpy
 matplotlib
 pyrtools
+PyQt5
