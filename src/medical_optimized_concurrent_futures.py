@@ -123,10 +123,10 @@ def process_frame(final_img, prev_gray, mask, s):
 
 if __name__ == "__main__":
     fps = 20
-    alpha = 100
+    alpha = 200  # Aumenta la sensibilidad
     lambda_c = 20
-    fl = 0.8
-    fh = 2.0
+    fl = 0.5     # Amplía el rango de frecuencias
+    fh = 3.0     # Amplía el rango de frecuencias
 
     cam = cv2.VideoCapture(0)
     ret, img1 = cam.read()
