@@ -53,29 +53,64 @@ class PlotCanvas(FigureCanvas):
         self.ax2.set_ylim(40, 180)
         self.draw()
 
+from PyQt5.QtWidgets import QComboBox, QMessageBox
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Magnificación Médica - GUI")
-        self.cam, self.img1 = inicializar_camara()
-        if self.cam is None or self.img1 is None:
-            raise RuntimeError("No se pudo inicializar la cámara.")
-        self.roi = detectar_rostro_y_roi(self.img1)
-        if self.roi is None:
-            liberar_recursos(self.cam)
-            raise RuntimeError("No se detectó rostro.")
-        x, y, w_roi, h_roi = self.roi
-        gray = cv2.cvtColor(self.img1, cv2.COLOR_BGR2GRAY)
-        roi_gray = gray[y:y+h_roi, x:x+w_roi]
         self.fps = 20
         self.alpha = 200
         self.lambda_c = 20
         self.fl = 0.5
         self.fh = 3.0
-        self.s = Magnify(roi_gray, self.alpha, self.lambda_c, self.fl, self.fh, self.fps)
-        self.prev_gray = gray.copy()
+        self.cam_index = 0
+        self.cam = None
+        self.img1 = None
+        self.roi = None
+        self.s = None
+        self.prev_gray = None
         self.signal_buffer = deque(maxlen=300)
         self.bpm_buffer = deque(maxlen=300)
+        self.init_ui_camera_select()
+
+    def init_ui_camera_select(self):
+        # UI para seleccionar cámara
+        self.combo_camera = QComboBox(self)
+        self.combo_camera.addItems([str(i) for i in range(5)])
+        self.combo_camera.setCurrentIndex(0)
+        label = QLabel("Selecciona la cámara:")
+        btn = QPushButton("Iniciar")
+        btn.clicked.connect(self.start_with_camera)
+        layout = QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(self.combo_camera)
+        layout.addWidget(btn)
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
+
+    def start_with_camera(self):
+        self.cam_index = int(self.combo_camera.currentText())
+        self.cam = cv2.VideoCapture(self.cam_index)
+        if not self.cam.isOpened():
+            QMessageBox.critical(self, "Error", f"No se pudo abrir la cámara {self.cam_index}.")
+            return
+        ret, self.img1 = self.cam.read()
+        if not ret or self.img1 is None:
+            QMessageBox.critical(self, "Error", "No se pudo leer de la cámara.")
+            self.cam.release()
+            return
+        self.roi = detectar_rostro_y_roi(self.img1)
+        if self.roi is None:
+            liberar_recursos(self.cam)
+            QMessageBox.critical(self, "Error", "No se detectó rostro.")
+            return
+        x, y, w_roi, h_roi = self.roi
+        gray = cv2.cvtColor(self.img1, cv2.COLOR_BGR2GRAY)
+        roi_gray = gray[y:y+h_roi, x:x+w_roi]
+        self.s = Magnify(roi_gray, self.alpha, self.lambda_c, self.fl, self.fh, self.fps)
+        self.prev_gray = gray.copy()
         self.init_ui()
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
