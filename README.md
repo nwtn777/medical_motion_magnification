@@ -41,6 +41,9 @@ The project requires the following Python packages:
 - pyrtools
 - PyQt5
 
+el proyecto todavía muestra problemas de inconsistencia de medición del pulso de BPM
+
+
 ## Contributing
 Contributions are welcome! Please feel free to submit a pull request or open an issue for any enhancements or bug fixes.
 
