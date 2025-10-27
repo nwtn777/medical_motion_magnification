@@ -51,9 +51,34 @@ def reconPyr(pyr):
                 res = hi2
     return res
 
+def auto_tune_parameters(flow, current_alpha, current_lambda):
+    """Ajusta automáticamente los parámetros alpha y lambda_c basándose en el flujo óptico."""
+    magnitude, _ = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+    mean_magnitude = np.mean(magnitude)
+    
+    # Ajuste de alpha
+    # Si el movimiento es muy pequeño, aumentamos alpha para amplificarlo más
+    # Si el movimiento es grande, reducimos alpha para evitar distorsión
+    alpha_scale = 1.0 / (mean_magnitude + 0.1)  # Evitamos división por cero
+    new_alpha = current_alpha * alpha_scale
+    
+    # Límites para alpha
+    new_alpha = np.clip(new_alpha, 50, 300)
+    
+    # Ajuste de lambda_c
+    # Ajustamos lambda_c basándonos en la variabilidad del movimiento
+    motion_std = np.std(magnitude)
+    new_lambda = current_lambda
+    if motion_std > 0.5:  # Movimiento muy variable
+        new_lambda = max(15, current_lambda * 0.9)
+    elif motion_std < 0.1:  # Movimiento muy estable
+        new_lambda = min(25, current_lambda * 1.1)
+    
+    return new_alpha, new_lambda
+
 class Magnify(object):
     """Magnifica las variaciones sutiles en una secuencia de imágenes en escala de grises."""
-    def __init__(self, gray1, alpha, lambda_c, fl, fh, samplingRate):
+    def __init__(self, gray1, alpha, lambda_c, fl, fh, samplingRate, auto_tune=True):
         [low_a, low_b] = signal.butter(1, fl/samplingRate, 'low')
         [high_a, high_b] = signal.butter(1, fh/samplingRate, 'low')
         py1 = pt.pyramids.LaplacianPyramid(gray1)
@@ -80,9 +105,29 @@ class Magnify(object):
         self.lambd = (self.width**2 + self.height**2) / 3.
         self.lambda_c = lambda_c
         self.delta = self.lambda_c / 8. / (1 + self.alpha)
+        self.auto_tune = auto_tune
+        self.prev_frame = None
+        self.frame_count = 0
 
     def Magnify(self, gray2):
         gray2 = img_as_float(gray2)
+        
+        # Auto-tune de parámetros si está habilitado y tenemos un frame previo
+        if self.auto_tune and self.frame_count > 0:
+            if self.prev_frame is not None:
+                flow = cv2.calcOpticalFlowFarneback(
+                    img_as_ubyte(self.prev_frame),
+                    img_as_ubyte(gray2),
+                    None, 0.5, 3, 15, 3, 5, 1.2, 0
+                )
+                new_alpha, new_lambda_c = auto_tune_parameters(flow, self.alpha, self.lambda_c)
+                self.alpha = new_alpha
+                self.lambda_c = new_lambda_c
+                self.delta = self.lambda_c / 8. / (1 + self.alpha)
+        
+        self.prev_frame = gray2
+        self.frame_count += 1
+        
         py2 = pt.pyramids.LaplacianPyramid(gray2)
         py2._build_pyr()
         pyr = py2.pyr_coeffs
@@ -149,6 +194,7 @@ def parse_args():
     parser.add_argument('--lambda_c', type=float, default=20, help='Lambda de corte')
     parser.add_argument('--fl', type=float, default=0.5, help='Frecuencia baja')
     parser.add_argument('--fh', type=float, default=3.0, help='Frecuencia alta')
+    parser.add_argument('--auto_tune', action='store_true', help='Habilitar auto-tune de parámetros')
     return parser.parse_args()
 
 def inicializar_camara():
