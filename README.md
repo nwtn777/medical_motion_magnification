@@ -1,38 +1,54 @@
-# Medical Pulse Magnifier
+# Magnificador de Pulso Médico
 
-## Overview
-The Medical Pulse Magnifier is a Python project designed to process video frames in real-time to magnify pulse signals from a user's forehead. Utilizing advanced image processing techniques, this application captures video input, detects facial features, and applies magnification to the region of interest (ROI) to visualize pulse changes.
+## Descripción General
+El Magnificador de Pulso Médico es un proyecto en Python diseñado para procesar fotogramas de video en tiempo real para magnificar las señales de pulso desde la frente del usuario. Utilizando técnicas avanzadas de procesamiento de imágenes, esta aplicación captura la entrada de video, detecta características faciales y aplica magnificación a la región de interés (ROI) para visualizar cambios en el pulso.
 
-## Features
-- Real-time video processing using OpenCV.
-- Optical flow visualization to track motion.
-- Laplacian pyramid-based image magnification.
-- Graphical representation of average intensity and estimated heart rate (BPM).
+## Características
+- Procesamiento de video en tiempo real usando OpenCV
+- Visualización de flujo óptico para seguimiento de movimiento
+- Magnificación de imagen basada en pirámide laplaciana
+- Representación gráfica de la intensidad promedio y ritmo cardíaco estimado (BPM)
+- Auto-ajuste inteligente de parámetros alpha y lambda
+- Detección automática de ROI en la frente
+- Procesamiento optimizado con concurrent futures
 
-## Installation
-To set up the project, ensure you have Python installed on your machine. Then, follow these steps:
+## Instalación
+Para configurar el proyecto, asegúrate de tener Python instalado en tu máquina. Luego, sigue estos pasos:
 
-1. Clone the repository:
+1. Clona el repositorio:
    ```
-   git clone https://github.com/yourusername/medical-pulse-magnifier.git
-   cd medical-pulse-magnifier
+   git clone https://github.com/nwtn777/medical_motion_magnification.git
+   cd medical_motion_magnification
    ```
 
-2. Install the required packages:
+2. Instala los paquetes requeridos:
    ```
    pip install -r requirements.txt
    ```
 
-## Usage
-To run the application, execute the following command in your terminal:
+## Uso
+Para ejecutar la aplicación, usa el siguiente comando en tu terminal:
 ```
 python src/medical_optimized_concurrent_futures.py
 ```
 
-Make sure your camera is connected and accessible. The application will open a window displaying the video feed with the magnified pulse ROI.
+Argumentos opcionales:
+- `--fps`: Frames por segundo (default: 20)
+- `--alpha`: Sensibilidad de magnificación (default: 200)
+- `--lambda_c`: Lambda de corte (default: 20)
+- `--fl`: Frecuencia baja (default: 0.5)
+- `--fh`: Frecuencia alta (default: 3.0)
+- `--auto_tune`: Habilitar auto-ajuste de parámetros alpha y lambda
 
-## Requirements
-The project requires the following Python packages:
+Ejemplo con argumentos personalizados:
+```
+python src/medical_optimized_concurrent_futures.py --fps 30 --alpha 150 --auto_tune
+```
+
+Asegúrate de que tu cámara esté conectada y accesible. La aplicación abrirá una ventana mostrando la transmisión de video con la ROI del pulso magnificada.
+
+## Requisitos
+El proyecto requiere los siguientes paquetes de Python:
 - opencv-python
 - scipy
 - scikit-image
@@ -41,11 +57,14 @@ The project requires the following Python packages:
 - pyrtools
 - PyQt5
 
-el proyecto todavía muestra problemas de inconsistencia de medición del pulso de BPM
+## Estado del Proyecto
+El proyecto está en desarrollo activo. Características actuales y limitaciones:
+- Auto-ajuste de parámetros para mejorar la detección del pulso
+- La medición del BPM está en fase experimental y puede mostrar inconsistencias
+- Optimización continua del rendimiento y precisión
 
+## Contribuciones
+¡Las contribuciones son bienvenidas! No dudes en enviar un pull request o abrir un issue para mejoras o corrección de errores.
 
-## Contributing
-Contributions are welcome! Please feel free to submit a pull request or open an issue for any enhancements or bug fixes.
-
-## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+## Licencia
+Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo LICENSE para más detalles.
