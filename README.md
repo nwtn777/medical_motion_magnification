@@ -60,8 +60,12 @@ El proyecto requiere los siguientes paquetes de Python:
 ## Estado del Proyecto
 El proyecto está en desarrollo activo. Características actuales y limitaciones:
 - Auto-ajuste de parámetros para mejorar la detección del pulso
-- La medición del BPM está en fase experimental y puede mostrar inconsistencias
+- ⚠️ AVISO IMPORTANTE: La medición del BPM es altamente inconsistente y no debe utilizarse para propósitos médicos
+  - Las lecturas pueden variar significativamente entre mediciones
+  - Los valores de BPM pueden no corresponder a la realidad
+  - La función está en fase experimental y requiere mayor desarrollo
 - Optimización continua del rendimiento y precisión
+- Se recomienda usar la aplicación solo para propósitos de investigación y desarrollo
 
 ## Contribuciones
 ¡Las contribuciones son bienvenidas! No dudes en enviar un pull request o abrir un issue para mejoras o corrección de errores.
